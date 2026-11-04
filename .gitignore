@@ -1,0 +1,14 @@
+/build*/
+/dist/
+/.vs/
+*.user
+*.suo
+*.pdb
+*.obj
+*.exe
+*.dll
+*.lib
+*.zip
+/Reports/
+__pycache__/
+.DS_Store

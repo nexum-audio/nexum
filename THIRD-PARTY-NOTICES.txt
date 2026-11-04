@@ -1,0 +1,12 @@
+NEXUM AUDIO — OPEN-SOURCE DEVELOPMENT RELEASE
+
+Original Nexum, Nexum FX, Nexum Tune and Nexum Gate implementation:
+SPDX-License-Identifier: AGPL-3.0-only
+Copyright (c) 2026 Nexum Audio contributors.
+
+Released under AGPL version 3 by the project owner. Third-party components keep
+their own terms. JUCE: AGPLv3 option; Rubber Band: GPLv2 or later; Zstandard:
+BSD/GPL dual licence; Catch2: BSL-1.0 (tests); bundled VST3 SDK: upstream licence.
+All original component notices and full sources are in the companion source ZIP.
+No user-imported sound packs, samples, wavetables or third-party preset packs
+are distributed in these packages. The plugin libraries can be populated by users.

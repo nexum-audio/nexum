@@ -1,0 +1,28 @@
+#pragma once
+#include "VoicingPanel.h"
+#include <iostream>
+namespace noctrl {
+inline int voicingChecks(){
+ using namespace juce;
+ auto fail=[](const String& why){std::cerr<<"VOICING FAIL: "<<why<<"\n";return 1;};
+ auto setup=[](bool legato,float glide,bool always,bool scaled){auto p=std::make_unique<SynthProcessor>();p->loadPreset(0);for(int o=1;o<=3;++o)p->set("osc"+String(o)+"enabled",0);p->set("sub",.6f);p->set("subOct",0);p->set("subShape",0);p->set("subRouting",5);p->set("mono",1);p->set("legato",legato);p->set("glide",glide);p->set("portaAlways",always);p->set("portaScaled",scaled);p->set("env1a",.3f);p->set("env1d",.01f);p->set("env1s",1);p->set("env1r",.03f);p->prepareToPlay(48000,480);return p;};
+ auto play=[](SynthProcessor& p,int blocks,int note=-1,bool off=false){AudioBuffer<float> audio(2,480);MidiBuffer midi;for(int i=0;i<blocks;++i){midi.clear();if(i==0&&note>=0)midi.addEvent(off?MidiMessage::noteOff(1,note):MidiMessage::noteOn(1,note,(uint8)100),0);p.processBlock(audio,midi);}return audio;};
+ auto linked=setup(true,0,false,false);play(*linked,20,60);float before=linked->graphTelemetry->envLevel[0].load();auto audio=play(*linked,1,72);float after=linked->graphTelemetry->envLevel[0].load();if(after<before||linked->activeVoices.load()!=1||audio.getMagnitude(0,480)<.001f)return fail("legato envelope / actual audio");
+ play(*linked,3,72,true);int note=-1;for(auto& voice:linked->graphTelemetry->oscVoices)if(voice.serial.load()>0)note=voice.note.load();if(note!=60)return fail("last-held fallback");play(*linked,12,60,true);if(linked->activeVoices.load()!=0)return fail("legato final release stuck");
+ auto retrigger=setup(false,0,false,false);play(*retrigger,20,60);play(*retrigger,1,72);if(retrigger->graphTelemetry->envLevel[0].load()>.1f)return fail("non-legato envelopes did not retrigger");
+ auto frequency=[](const AudioBuffer<float>& data,int start,int count){int crossings=0;double first=0,last=0;for(int i=start+1;i<start+count;++i){float a=data.getSample(0,i-1),b=data.getSample(0,i);if(a<=0&&b>0){double t=i-1-a/(b-a);if(crossings++==0)first=t;last=t;}}return crossings>1?(crossings-1)*48000/(last-first):0.;};
+ auto glideAudio=[&](bool always,bool scaled,int interval,float curve,bool overlap){auto p=setup(true,.2f,always,scaled);p->set("portaCurve",curve);p->set("env1a",.001f);AudioBuffer<float> result(2,48000);MidiBuffer midi;AudioBuffer<float> block(2,480);for(int n=0;n<100;++n){midi.clear();if(n==0)midi.addEvent(MidiMessage::noteOn(1,60,(uint8)100),0);if(n==10&&!overlap)midi.addEvent(MidiMessage::noteOff(1,60),0);if(n==20)midi.addEvent(MidiMessage::noteOn(1,60+interval,(uint8)100),0);p->processBlock(block,midi);for(int c=0;c<2;++c)result.copyFrom(c,n*480,block,c,0,480);}return result;};
+ auto slide=glideAudio(false,false,12,0,true),gap=glideAudio(false,false,12,0,false),always=glideAudio(true,false,12,0,false),scaled=glideAudio(false,true,3,0,true),slow=glideAudio(false,false,3,0,true),late=glideAudio(false,false,12,1,true),early=glideAudio(false,false,12,-1,true);
+ double midpoint=frequency(slide,14200,1200),target=523.25113;
+ if(midpoint<340||midpoint>410||std::abs(frequency(slide,21600,2400)-target)>1)return fail("actual pitch glide timing: "+String(midpoint));
+ if(std::abs(frequency(gap,10800,1200)-target)>1||frequency(always,10800,1200)>330)return fail("Always / overlapping-note gating");
+ if(std::abs(frequency(scaled,13200,1200)-311.12698)>1||frequency(slow,13200,1200)>295)return fail("Scaled interval time");
+ if(frequency(early,13800,1200)<frequency(late,13800,1200)+100)return fail("curve shape did not affect audio");
+ auto p=setup(true,0,false,false);p->set("mono",0);p->set("env1a",.001f);if(!p->assignLiveMod(11,"sub")||!p->assignLiveMod(12,"subPan"))return fail("new modulation sources");p->setLiveModRange(11,"sub",0,1);p->setLiveModRange(12,"subPan",0,1);for(int i=1;i<=16;++i){p->set("velocityCurve"+String(i),.25f);p->set("noteCurve"+String(i),.75f);}auto mapped=play(*p,3,60);float left=mapped.getRMSLevel(0,0,480),right=mapped.getRMSLevel(1,0,480);if(left<.0001f||right/left<1.6f||right/left>1.9f)return fail("NOTE source did not pan actual audio");for(int i=1;i<=16;++i)p->set("velocityCurve"+String(i),.75f);auto louder=play(*p,3);float ratio=louder.getRMSLevel(0,0,480)/left;if(ratio<2.7f||ratio>3.3f)return fail("VELO source did not change actual gain");for(int i=1;i<=16;++i)p->set("velocityCurve"+String(i),.25f);play(*p,1);if(std::abs(p->liveSources[11].load()-.25f)>.001f||std::abs(p->liveSources[12].load()-.75f)>.001f)return fail("curve mapping in voice modulation");
+ MemoryBlock state;p->getStateInformation(state);p->loadPreset(0);p->setStateInformation(state.getData(),(int)state.getSize());if(!p->liveMods()->find(11,"sub")||!p->liveMods()->find(12,"subPan")||p->value("velocityCurve8")!=.25f||p->value("noteCurve8")!=.75f)return fail("curve and routing recall");
+ PerformanceCurveCanvas canvas(*p);canvas.setSize(214,105);canvas.reset(1);if(p->value("velocityCurve1")!=1||p->value("velocityCurve16")!=0)return fail("inverse preset");canvas.setKind(1);canvas.reset(0);if(p->value("noteCurve1")!=0||p->value("noteCurve16")!=1)return fail("independent Note curve reset");
+ std::unique_ptr<AudioProcessorEditor> editor(p->createEditor());FileOutputStream out(File::getCurrentWorkingDirectory().getChildFile("Reports/Nexum-Voicing.png"));out.setPosition(0);out.truncate();PNGImageFormat().writeImageToStream(editor->createComponentSnapshot(editor->getLocalBounds()),out);
+ std::cout<<"PASS: real legato envelope continuity / retrigger / note fallback / release, audible finite-duration glide, Always gating, Scaled intervals and curve shape, VELO/NOTE voice modulation, independent curves and saved routing.\n";
+ return 0;
+}
+}
