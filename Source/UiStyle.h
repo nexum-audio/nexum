@@ -11,6 +11,8 @@ struct UiStyle {
  static juce::Colour blue(){return nd::colour(juce::Colour(NEXUM_UI_ACCENT));}
  static juce::Colour moduleSurface(){return nd::colour(juce::Colour(0xff91a3b0));}
  static juce::Colour moduleHeader(){return nd::colour(juce::Colour(0xffa7b9c5));}
+ static juce::Colour filterSurface(){return nd::colour(juce::Colour(0xff25313a));}
+ static juce::Colour filterHeader(){return nd::colour(juce::Colour(0xff303f49));}
  static juce::Colour moduleInk(){return nd::colour(juce::Colour(0xff1b3040));}
  static void moduleCard(juce::Graphics& g,juce::Rectangle<float> r){nd::Scope suitScope("module");g.setColour(nd::colour(moduleSurface()));g.fillRoundedRectangle(r,nd::number("radius",radius));g.setColour(nd::colour(nd::colour(juce::Colour(0xff657d8e))));g.drawRoundedRectangle(r.reduced(.5f),nd::number("radius",radius-.5f),.7f);}
  static void header(juce::Graphics& g,juce::Rectangle<float> r,juce::String title={},bool selected=false){nd::Scope suitScope("header");juce::Path path;path.addRoundedRectangle(r.getX(),r.getY(),r.getWidth(),r.getHeight(),nd::number("radius",radius),nd::number("radius",radius),true,true,false,false);g.setColour(nd::colour(nd::colour(juce::Colour(selected?0xff344b5d:0xff243442))));g.fillPath(path);g.setColour(nd::colour(nd::colour(juce::Colour(0xff486074))));g.drawHorizontalLine(juce::roundToInt(r.getBottom()-1),r.getX(),r.getRight());if(title.isNotEmpty()){g.setColour(nd::colour(blue()));g.setFont(juce::FontOptions(nd::number("fontSize",11.5f),juce::Font::bold));g.drawText(title,r.reduced(12,0),juce::Justification::centredLeft,false);}}

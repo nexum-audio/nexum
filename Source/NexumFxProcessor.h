@@ -2,7 +2,7 @@
 #include "Processor.h"
 namespace noctrl {
 class NexumFxProcessor:public SynthProcessor {
- juce::AudioBuffer<float> work;juce::SmoothedValue<float> outputGain;bool wasBypassed=false;
+ juce::AudioBuffer<float> work;juce::SmoothedValue<float> outputGain,globalMix;bool wasBypassed=false;
  std::atomic<double> tempo{120};
  void updateMeters(const juce::AudioBuffer<float>&);
 public:

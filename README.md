@@ -28,3 +28,20 @@ effects. Tune and Gate use the shared UI from the same pinned source.
 ## License
 Original implementation: AGPL-3.0-only. See LICENSE.txt and
 THIRD-PARTY-NOTICES.txt. Third-party components retain their own licenses.
+
+## November 2026 development update
+- Three horizontal oscillator cards, five source modes, two independent filters.
+- Coloured patch cables and per-generator-to-filter connection FX racks.
+- Focused live modulation/macro Matrix, growable preset-owned macros.
+- 17 shared rack effects and a shared single-effect/chain library with Nexum FX.
+- Editable preset, wavetable and SFZ libraries, arpeggiator and clip editor.
+- Fresh standalone sessions start at Init; normal DAW state recall is retained.
+
+External preset conversion remains experimental. Missing source assets and
+unsupported modulation, filter or effect settings can change the sound. Third-party
+preset packs, commercial assets and private comparison recordings are not included.
+
+Nexum Rec is available at https://github.com/nexum-audio/nexum-rec.
+Build checks: use SynthCheck --matrix, --connectionracks, --synthgraphs and
+NexumFxCheck. The Windows development builds were checked before publication;
+this source checkout has not been fully rebuilt from scratch on every platform.

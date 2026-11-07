@@ -50,6 +50,12 @@ struct SVF {
  void configure(float hz,float resonance,double sr){g=std::tan(juce::MathConstants<float>::pi*juce::jlimit(15.f,(float)sr*.43f,hz)/(float)sr);k=2-1.94f*resonance;}
  float process(float v,int type){if(type==3)return v;float a=1/(1+g*(g+k));float v1=a*(s1+g*(v-s2));float v2=s2+g*v1;s1=2*v1-s1;s2=2*v2-s2;return type==0?v2:type==1?v-k*v1-v2:v1;}
 };
+// Shared stereo connection inserts: fixed buffers, no allocation in the callback.
+struct ConnectionAudio {
+ std::array<juce::AudioBuffer<float>,10> input;SVF filter[10][2][2],secondPole[10][2][2];float drive[10][2]{};std::array<juce::uint64,10> serial{};
+ ConnectionAudio(){for(auto& b:input)b.setSize(2,8192);}
+ void reset(){for(auto& b:input)b.clear();for(int r=0;r<10;++r)for(int f=0;f<2;++f)for(int c=0;c<2;++c){filter[r][f][c].reset();secondPole[r][f][c].reset();}}
+};
 struct Expansion;struct ImportedAssets;
 class SynthProcessor;
 struct Sound:juce::SynthesiserSound {bool appliesToNote(int)override{return true;}bool appliesToChannel(int)override{return true;}};
@@ -134,6 +140,10 @@ public:
  FxMeterValues fxMeters{};std::unique_ptr<FxAnalysisValues> fxAnalysis=std::make_unique<FxAnalysisValues>();std::shared_ptr<FxRackRuntime> fxRuntime;std::vector<std::shared_ptr<FxRackRuntime>> retiredFx;
  juce::AudioBuffer<float> fxBusBuffer{2,8192};
  std::shared_ptr<const FxRackState> rack()const{return std::atomic_load(&fxRackState);}
+ void setCableColour(int from,int to,bool send,juce::uint32 colour);
+ int addConnectionRack(int source,int filter);void removeConnectionRack(int bus);
+ std::unique_ptr<ConnectionAudio> connectionAudio=std::make_unique<ConnectionAudio>();std::array<bool,10> activeConnectionRacks{};std::array<int,64> connectionEnabledIndices{},connectionWetIndices{};
+ void processConnectionRacks(juce::AudioBuffer<float>&,int start,int count);
  int addFx(int bus,int type);void removeFx(int slot);void moveFx(int slot,int delta);void moveFxTo(int slot,int index);
  bool loadFxIR(int slot,const juce::File&,juce::String& error);
  void rebuildFxRack();void restoreFxRack(const juce::ValueTree&);

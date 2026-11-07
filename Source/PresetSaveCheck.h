@@ -3,7 +3,7 @@
 #include "PackBrowser.h"
 #include <iostream>
 static int presetSaveChecks(){
- using namespace juce;using namespace noctrl;auto fail=[](const char* reason){std::cerr<<"PRESET SAVE FAIL: "<<reason<<"\n";return 240;};SynthProcessor processor;processor.loadPreset(0);
+ using namespace juce;using namespace noctrl;auto fail=[](const char* reason){std::cerr<<"PRESET SAVE FAIL: "<<reason<<"\n";return 240;};auto owner=std::make_unique<SynthProcessor>();auto& processor=*owner;processor.loadPreset(0);
  auto menu=presetSaveMenu(processor);PopupMenu::MenuItemIterator empty(menu);if(!empty.next()||empty.getItem().text!="Create new preset"||!empty.getItem().isEnabled||!empty.next()||empty.getItem().text!="Overwrite preset"||empty.getItem().isEnabled)return fail("menu with unsaved sound");
  auto root=File::getCurrentWorkingDirectory().getChildFile("Tests/PresetSave").getNonexistentSibling();PresetLibrary library(root);String packId;if(library.createPack("Own Sounds","Artist","",packId).failed())return fail("pack fixture");PresetMetadata metadata;metadata.name="Heroic Horns";metadata.author="Artist";metadata.description="Original description";processor.set("osc1fine",12);MemoryBlock state;processor.getStateInformation(state);File saved;if(library.savePreset(packId,metadata,state,saved).failed())return fail("new preset");MemoryBlock first;saved.loadFileAsData(first);processor.setStateInformation(first.getData(),(int)first.getSize());if(PresetLibrary::currentPresetFile(processor)!=saved||!PresetLibrary::canOverwriteCurrent(processor))return fail("saved file tracking");
  auto enabled=presetSaveMenu(processor);PopupMenu::MenuItemIterator ready(enabled);ready.next();if(!ready.next()||!ready.getItem().isEnabled)return fail("overwrite enabled");

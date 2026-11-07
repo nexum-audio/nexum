@@ -19,7 +19,7 @@ Each FX bypass indicator is grey while active and lights in that FX's colour whe
 Trancegate: add it with + FX > Trancegate. Draw levels directly across its 16 steps. RATE selects quarter, eighth, sixteenth, thirty-second or triplet steps; STEPS changes the pattern length (1–16). DEPTH controls the gating amount, GATE the open portion of each step, ATTACK/RELEASE soften transitions, and STEREO offsets the right channel by steps. The pattern follows host tempo and playback position; standalone playback runs at 120 BPM. Step patterns and controls are stored in projects and the shared FX Library.
 
 ## suit — gemeinsames NEXUM-Design
-Die Oberflaechen sind mit Nexum Tune ueber denselben NexumDesign-SDK verbunden. suit unter `C:/Users/maxim/Desktop/VST3 Plugins/suit/suit.exe` bearbeitet Farben, Schriftgroessen, Rundungen und Stil-Vererbung. Veroeffentlichte Stile werden aus `%APPDATA%/NEXUM/suit/design.json` im UI-Thread live uebernommen. Die FX-Hardware-Schienen und Audiofunktionen bleiben erhalten.
+Die Oberflaechen sind mit Nexum Tune ueber denselben NexumDesign-SDK verbunden. suit unter `the installed standalone directory` bearbeitet Farben, Schriftgroessen, Rundungen und Stil-Vererbung. Veroeffentlichte Stile werden aus `%APPDATA%/NEXUM/suit/design.json` im UI-Thread live uebernommen. Die FX-Hardware-Schienen und Audiofunktionen bleiben erhalten.
 
 
 ## Linke Seitenleiste

@@ -36,7 +36,8 @@ target_compile_definitions(SynthCheck PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0
 target_link_libraries(SynthCheck PRIVATE NexumSynth juce::juce_audio_utils juce::juce_dsp)
 if(MSVC)
  target_compile_options(SynthCheck PRIVATE /utf-8 /MP1)
- target_link_options(SynthCheck PRIVATE /DEBUG:FULL /MAP)
+ # The aggregate regression runner exercises large DSP/state fixtures on one thread.
+ target_link_options(SynthCheck PRIVATE /DEBUG:FULL /MAP /STACK:8388608)
 endif()
 
 add_executable(NexumFxCheck Source/NexumFxCheck.cpp)
@@ -46,3 +47,9 @@ target_link_libraries(NexumFxCheck PRIVATE NexumFx juce::juce_audio_utils juce::
 if(MSVC)
  target_compile_options(NexumFxCheck PRIVATE /utf-8 /MP1)
 endif()
+
+# Fresh Init session on standalone launch; host/project recall remains unchanged.
+target_sources(NexumSynth_Standalone PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shared/NexumDesign/include/NexumStandalone.cpp")
+target_compile_definitions(NexumSynth_Standalone PRIVATE JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1)
+target_sources(NexumFx_Standalone PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/shared/NexumDesign/include/NexumStandalone.cpp")
+target_compile_definitions(NexumFx_Standalone PRIVATE JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1)

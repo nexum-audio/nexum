@@ -16,7 +16,7 @@ struct OscExtra {
 template<class Setter>inline void oscAssetDefaults(const OscExtra& x,Setter set){set("keyTrack",x.keytrack?1.f:0.f);set("sampleStart",x.start);set("sampleEnd",x.end);set("loopStart",x.loopStart);set("loopEnd",x.loopEnd);set("crossfade",x.crossfade);set("scan",x.scanRate);set("grainLength",x.grainLength);set("grainDensity",x.density);set("grainOffset",x.randomOffset);set("grainPitch",x.randomPitch);set("grainPan",x.randomPan);}
 struct ModExtra {int source=0,aux=0,target=0;float amount=0;bool bipolar=false;};
 struct EnvExtra {juce::ADSR::Parameters params;float hold=0;float curve[3]={50,50,50};};
-struct LfoExtra {std::array<float,256> curve{};double rate=1;bool sync=true,retrigger=false,oneShot=false;};
+struct LfoExtra {std::array<float,256> curve{};double rate=6.25,beats=1;int uiSync=3;bool sync=true,retrigger=false,oneShot=false;};
 struct FxModExtra {int source=0,aux=0,unit=0,target=0;float amount=0;bool bipolar=false;};
 struct FxExtra {juce::String type;int index=0,rack=0,sourceIndex=0,nativeType=-1;bool enabled=true;std::array<float,16> controls{};std::map<juce::String,int> targets;juce::var document;std::map<juce::String,double> params;double value(const juce::String& key,double fallback)const {auto i=params.find(key);return i==params.end()?fallback:i->second;}};
 struct PatternStep {double start=0,length=.25;int note=0;float velocity=.8f;};

@@ -7,7 +7,7 @@ eigene Kennung und ersetzt keine Instanzen in alten Projekten.
 
 In FL Studio: Options > Manage plugins > Find installed plugins. Danach das Instrument
 **Nexum** auswählen. VST3: `C:/Program Files/Common Files/VST3/NEXUM/Nexum.vst3`.
-Standalone: `C:/Users/maxim/Desktop/VST3 Plugins/Nexum/Nexum.exe`.
+Standalone: `the installed standalone directory`.
 
 Eine durchgehende linke Seitenleiste enthält OSC, MIX, FX, MATRIX und PACKS
 untereinander. Darunter stehen standardmaessig vier Makros und ein Plus-Feld zum Erweitern auf
